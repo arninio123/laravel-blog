@@ -17,6 +17,42 @@ class Post extends Model
     //protected $with = ['category', 'author'];
     //Post::without('author')->first()
 
+    // Accepteert een query en dan kan je de functie filter er op gebruiken (Post::newQuery()->filter()->get())
+    public function scopeFilter($query, array $filters){ 
+        
+        $query->when($filters['search'] ?? false, fn($query, $search) => 
+            $query->where(fn($query) =>
+                $query->where('title', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('body', 'like', '%' . $filters['search'] . '%')
+            )
+        );
+
+        /* 
+            if($filters['search'] ?? false){
+            $query
+                ->where('title', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('body', 'like', '%' . $filters['search'] . '%');
+            }
+
+            is het zelfde als hier boven maar dan arrow function
+            $query->when($filters['search'] ?? false), fn($query, $search) => $query
+                ->where('title', 'like', '%' . $filters['search'] . '%')
+                ->orWhere('body', 'like', '%' . $filters['search'] . '%');
+        */
+
+        $query->when($filters['category'] ?? false, fn($query, $category) =>
+            $query->whereHas('category', fn ($query) =>
+                $query->where('id', $category)
+            )
+        );
+
+        $query->when($filters['author'] ?? false, fn($query, $author) =>
+            $query->whereHas('author', fn ($query) =>
+                $query->where('username', $author)
+            )
+        );
+    }
+
     public function category()
     {
         // 1 post belongs to 1 category

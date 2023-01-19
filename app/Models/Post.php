@@ -2,60 +2,42 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\File;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-use Spatie\YamlFrontMatter\YamlFrontMatter;
-
-class Post
+class Post extends Model
 {
+    use HasFactory;
 
-    public $title;
-    public $excerpt;
-    public $date;
-    public $body;
-    public $slug;
+    //Mitigate Mass assaignment Vulnerabilities
+    //protected $guarded = [];
+    //protected $fillable = ['title', 'slug', 'body', 'category'];
 
-    public function __construct($title, $excerpt, $date, $body, $slug)
+    //Alway load posts with their
+    //protected $with = ['category', 'author'];
+    //Post::without('author')->first()
+
+    public function category()
     {
-        $this->title = $title;
-        $this->excerpt = $excerpt;
-        $this->date = $date;
-        $this->body = $body;
-        $this->slug = $slug;
+        // 1 post belongs to 1 category
+        // hasOne, hasMany, --> BelongsTo, BelongsToMany
+        return $this->belongsTo(Category::class);
     }
 
-    public static function all()
+    /*
+    public function user()
     {
-        return cache()->remember('posts.all', 5, function()
-        {
-            return collect(File::files(resource_path("posts/")))
-            ->map(fn($file) => $document = YamlFrontMatter::parseFile($file))
-            ->map(fn($document) => new Post(
-                    $document->title,
-                    $document->excerpt,
-                    $document->date,
-                    $document->body(),
-                    $document->slug,
-                ))
-                ->sortByDesc('date');
-        });
+        // 1 post belongs to 1 user
+        // hasOne, hasMany, --> BelongsTo, BelongsToMany
+        return $this->belongsTo(User::class);
+    }
+    */
+
+    public function author() //will search for author_id as foreign key 
+    {
+        // 1 post belongs to 1 user
+        // hasOne, hasMany, --> BelongsTo, BelongsToMany
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function find($slug)
-    {
-        return static::all()->firstWhere('slug', $slug);
-    }
-
-    public static function findOrFail($slug)
-    {
-        $post = static::find($slug);
-
-        if(! $post)
-        {
-            throw new ModelNotFoundException();
-        }
-
-        return $post;
-    }
 }

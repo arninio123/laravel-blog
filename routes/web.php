@@ -1,8 +1,9 @@
 <?php
 
-use App\Models\Category;
-use App\Models\Post;
-use App\Models\User;
+use App\Http\Controllers\PostController;
+//use App\Models\Category;
+//use App\Models\Post;
+//use App\Models\User;
 
 use Illuminate\Support\Facades\Route;
 
@@ -17,29 +18,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('posts', [
-        //'posts' => Post::all()
-        'posts' => Post::latest()->with('category', 'author')->get(),
-        'categories' => Category::all()
-    ]);
-    /*
-    OLD query 
-    N+1 problem
-    'posts' => Post::all() Will do the following queries behind the scenes
-    Post	    SELECT * FROM `posts`
-    Category	SELECT * FROM `categories` WHERE `categories`.`id` = 1 LIMIT 1
-    Category    SELECT * FROM `categories` WHERE `categories`.`id` = 1 LIMIT 1
-    Category	SELECT * FROM `categories` WHERE `categories`.`id` = 3 LIMIT 1
-
-    New query
-        'posts' => Post::with('category')->get()
-        Post	    SELECT * FROM `posts`
-        Category	SELECT * FROM `categories` WHERE `categories`.`id` in (1, 3)
-    */
-
-})->name('home');
-
+Route::get('/', [PostController::class, 'index'])->name('home');
+Route::get('posts/{post:slug}', [PostController::class, 'show']);
 /*
 
     Route::get('posts/{post}', function ($id) {
@@ -54,28 +34,25 @@ Route::get('/', function () {
         ]);
     });
 
-*/
 
-Route::get('posts/{post:slug}', function (Post $post) { //Post::where('slug', $post)->firstOrFail()
-    return view('post', [
-        'post' => $post
-    ]);
-});
+ // Convert to same route as home
+    Route::get('categories/{category}', function (Category $category) {
+        return view('posts', [
+            'posts' => $category->posts->load(['category', 'author']),
+            'currentCategory' => $category,
+            'categories' => Category::all()
+        ]);
+    });
 
-Route::get('categories/{category}', function (Category $category) {
-    return view('posts', [
-        'posts' => $category->posts->load(['category', 'author']),
-        'currentCategory' => $category,
-        'categories' => Category::all()
-    ]);
-});
 
+onvert to same route as home
 Route::get('authors/{author:username}', function (User $author) {
-    return view('posts', [
+    return view('posts.index', [
         'posts' => $author->posts->load(['category', 'author']),
-        'categories' => Category::all()
     ]);
 });
+
+*/
 
 
 
@@ -95,12 +72,15 @@ Route::get('authors/{author:username}', function (User $author) {
 | php artisan make:factory PostFactory
 | php artisan make:model Post -mf
 |
+| php artisan make:controller PostController
+|
+|
 | php artisan tinker --> to play with db
 | App\Models\Post::factory(10)->create(['category_id' => 1])
 | App\Models\Post::first()
 |
 | php artisan db:seed
 | php artisan migrate:fresh --seed
-|
+| 
 | 
 */

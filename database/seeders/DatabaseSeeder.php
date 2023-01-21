@@ -5,9 +5,11 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Category;
+use App\Models\Comment;
 use App\Models\User;
 use App\Models\Post;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,10 +21,11 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         //truncate only needed with db:seed
-        //with migrate:fresh --seed -> the tbales are already dropped
-        User::truncate();
-        Category::truncate();
-        Post::truncate();
+        //with migrate:fresh --seed -> the table are already dropped
+        //User::truncate();
+        //Category::truncate();
+        //Post::truncate();
+        //Comment::truncate();
 
         $user = User::factory()->create([
             'name' => 'John Doe'
@@ -33,7 +36,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(3)->create();
-        Post::factory(30)->create();
+        Post::factory(2)->create();
+        Comment::factory(15)->create();
         
         /*
         $user = User::factory()->create();

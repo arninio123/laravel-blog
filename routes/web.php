@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SessionsController;
@@ -29,6 +30,8 @@ Route::post('logout', [SessionsController::class, 'destroy'])->middleware('auth'
 
 Route::get('/', [PostController::class, 'index'])->name('home');
 Route::get('posts/{post:slug}', [PostController::class, 'show']);
+Route::post('posts/{post:slug}/comments', [CommentController::class, 'store']);
+
 /*
 
     Route::get('posts/{post}', function ($id) {

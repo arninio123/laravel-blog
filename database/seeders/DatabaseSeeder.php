@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(3)->create();
-        Post::factory(4)->create();
+        Post::factory(30)->create();
         
         /*
         $user = User::factory()->create();

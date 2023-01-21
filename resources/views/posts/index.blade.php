@@ -14,6 +14,8 @@
                 @endforeach
             </div>    
         @endif
+
+        {{ $posts->links() }}
     @else
         <p class="text-center">No posts available yet!</p>
     @endif
